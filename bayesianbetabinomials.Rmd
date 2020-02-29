@@ -1,3 +1,16 @@
+---
+title: "bayesianbetabinomial"
+author: "J Gauthier"
+date: "2/28/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Let's use a betabinomial model and make predictions in the setting of a small clinical trial.
+```{r, include=FALSE}
 #Prop_model function by Rasmus Baath http://www.sumsar.net/blog/2018/12/visualizing-the-beta-binomial/
 prop_model <- function(data = c(), prior_prop = c(1, 1), n_draws = 10000) {
   library(tidyverse)
@@ -41,3 +54,21 @@ prop_model <- function(data = c(), prior_prop = c(1, 1), n_draws = 10000) {
   posterior_sample <- rbeta(n_draws, prior_prop[1] + sum(data), prior_prop[2] + sum(!data))
   invisible(posterior_sample)
 }
+```
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(ggpubr)
+data <- c(0:15) # Consider 15 patients
+prop_model(data, prior_prop = c(0.4,0.6)) #Run function with a weak beta prior centered on 0.4
+```
+
+Unfortunately our prior doesn't show up using this function at n=0 (neither at n=1). Let's have a closer look plotting it separately:
+
+```{r}
+prior = rbeta(10000,0.4,0.6)
+hist(prior,breaks=100)
+#Prior updated with 1/15 response
+prior = rbeta(10000,1+0.4,14+0.6)
+hist(prior,breaks=100)
+```
